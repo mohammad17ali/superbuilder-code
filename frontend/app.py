@@ -11,6 +11,7 @@ CHAT_ENDPOINT = f"{API_URL}/chat"
 HEALTH_ENDPOINT = f"{API_URL}/health"
 
 
+
 def check_backend_health() -> dict:
     """
     Check if the FastAPI backend and Super Builder service are healthy.
