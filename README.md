@@ -109,7 +109,7 @@ This application provides a clean, modern chat interface for interacting with In
 ### 1. Clone the Repository
 
 ```bash
-git clone <repository-url>
+git clone https://github.com/mohammad17ali/superbuilder-code
 cd superbuilder-app
 ```
 
