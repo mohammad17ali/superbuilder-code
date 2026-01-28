@@ -1,0 +1,16 @@
+# FastAPI Backend
+fastapi==0.109.0
+uvicorn[standard]==0.27.0
+pydantic==2.5.3
+python-multipart==0.0.6
+
+# gRPC Communication
+grpcio==1.60.0
+grpcio-tools==1.60.0
+protobuf==4.25.1
+
+# Streamlit Frontend
+streamlit==1.30.0
+
+# Utilities
+python-dotenv==1.0.0
