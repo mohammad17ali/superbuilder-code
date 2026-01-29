@@ -104,7 +104,64 @@ This application provides a clean, modern chat interface for interacting with In
 
 ---
 
-## 🚀 Installation
+## � WSL to Windows Connectivity
+
+If you are developing in **WSL (Windows Subsystem for Linux)** while the Intel Super Builder service runs on **Windows**, you need to configure network bridging. This is because `localhost` in WSL refers to the Linux instance, not the Windows host.
+
+### Why This Is Needed
+
+- Intel Super Builder (`IntelAiaService.exe`) runs on Windows and binds to `127.0.0.1:5006`
+- WSL has a separate network namespace; `localhost` in WSL does not reach Windows `localhost`
+- A port proxy forwards traffic from WSL to the Windows service
+
+### Setup Steps (Run on Windows)
+
+Open **PowerShell as Administrator** and run:
+
+```powershell
+# Step 1: Add port proxy to forward connections to localhost
+netsh interface portproxy add v4tov4 listenport=5006 listenaddress=0.0.0.0 connectport=5006 connectaddress=127.0.0.1
+
+# Step 2: Allow inbound connections through Windows Firewall
+New-NetFirewallRule -DisplayName "WSL gRPC 5006" -Direction Inbound -LocalPort 5006 -Protocol TCP -Action Allow
+
+# Step 3: Verify the port proxy is configured
+netsh interface portproxy show all
+```
+
+### Find the Windows Host IP (Run in WSL)
+
+```bash
+# Get the Windows host IP for WSL networking
+ip route show default | awk '{print $3}'
+# Or check the vEthernet adapter IP from Windows:
+# Get-NetIPAddress | Where-Object {$_.InterfaceAlias -like "*WSL*"}
+```
+
+### Configure the Application
+
+Set the environment variable before running the backend:
+
+```bash
+# Replace with your Windows host IP (e.g., 172.19.48.1)
+export SUPERBUILDER_GRPC_HOST=172.19.48.1
+export SUPERBUILDER_GRPC_PORT=5006  # Optional, defaults to 5006
+
+# Then start the backend
+python backend/main.py
+```
+
+### Cleanup (Optional)
+
+To remove the port proxy when no longer needed:
+
+```powershell
+netsh interface portproxy delete v4tov4 listenport=5006 listenaddress=0.0.0.0
+```
+
+---
+
+## �🚀 Installation
 
 ### 1. Clone the Repository
 

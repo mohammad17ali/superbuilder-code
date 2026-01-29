@@ -3,13 +3,28 @@ gRPC Client for Intel Super Builder Service
 
 This module handles all gRPC communication with the Intel AI Super Builder
 middleware service running on localhost:5006.
+
+For WSL users: Set SUPERBUILDER_GRPC_HOST environment variable to the Windows host IP.
 """
 import logging
 import grpc
 import json
+import os
 import random
 import string
+from pathlib import Path
 from typing import Optional, Iterator
+
+from dotenv import load_dotenv
+
+# Load environment variables from .env file (from project root)
+env_path = Path(__file__).parent.parent / ".env"
+load_dotenv(env_path)
+
+# gRPC connection settings - configurable via environment variables or .env file
+# WSL users should set SUPERBUILDER_GRPC_HOST to their Windows host IP (e.g., 172.19.48.1)
+GRPC_HOST = os.environ.get("SUPERBUILDER_GRPC_HOST", "localhost")
+GRPC_PORT = os.environ.get("SUPERBUILDER_GRPC_PORT", "5006")
 
 # Import generated proto stubs
 import sys
@@ -36,15 +51,22 @@ class SuperBuilderClient:
     Client for communicating with Intel Super Builder service via gRPC.
     
     The service runs on localhost:5006 and provides LLM inference capabilities.
+    
+    For WSL users: Set SUPERBUILDER_GRPC_HOST environment variable to the Windows
+    host IP (e.g., 172.19.48.1) to reach the service running on Windows.
     """
     
-    def __init__(self, grpc_address: str = "localhost:5006"):
+    def __init__(self, grpc_address: str = None):
         """
         Initialize the Super Builder gRPC client.
         
         Args:
-            grpc_address: Address of the Super Builder service (default: localhost:5006)
+            grpc_address: Address of the Super Builder service. 
+                          If None, uses SUPERBUILDER_GRPC_HOST:SUPERBUILDER_GRPC_PORT
+                          environment variables (defaults to localhost:5006).
         """
+        if grpc_address is None:
+            grpc_address = f"{GRPC_HOST}:{GRPC_PORT}"
         self.grpc_address = grpc_address
         self.channel: Optional[grpc.Channel] = None
         self.stub: Optional[sbg.SuperBuilderStub] = None
