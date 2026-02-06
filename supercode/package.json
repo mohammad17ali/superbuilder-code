@@ -1,0 +1,68 @@
+{
+  "name": "superbuilder-chat",
+  "displayName": "SuperBuilder Chat",
+  "description": "AI-powered coding assistant with Intel Super Builder integration",
+  "version": "0.1.0",
+  "publisher": "superbuilder",
+  "icon": "media/icon.png",
+  "engines": {
+    "vscode": "^1.85.0"
+  },
+  "categories": [
+    "AI",
+    "Chat",
+    "Programming Languages"
+  ],
+  "activationEvents": [
+    "onStartupFinished"
+  ],
+  "main": "./out/extension.js",
+  "contributes": {
+    "chatParticipants": [
+      {
+        "id": "superbuilder-chat.assistant",
+        "name": "superbuilder",
+        "description": "AI coding assistant powered by Intel Super Builder",
+        "isSticky": true,
+        "commands": [
+          {
+            "name": "help",
+            "description": "Get help with SuperBuilder commands"
+          },
+          {
+            "name": "status",
+            "description": "Check backend connection status"
+          }
+        ]
+      }
+    ],
+    "commands": [
+      {
+        "command": "superbuilder.checkBackend",
+        "title": "SuperBuilder: Check Backend Status"
+      }
+    ]
+  },
+  "scripts": {
+    "vscode:prepublish": "npm run compile",
+    "compile": "tsc -p ./",
+    "watch": "tsc -watch -p ./",
+    "pretest": "npm run compile && npm run lint",
+    "lint": "eslint src --ext ts",
+    "test": "vscode-test"
+  },
+  "devDependencies": {
+    "@types/vscode": "^1.85.0",
+    "@types/mocha": "^10.0.10",
+    "@types/node": "20.x",
+    "@typescript-eslint/eslint-plugin": "^6.15.0",
+    "@typescript-eslint/parser": "^6.15.0",
+    "eslint": "^8.56.0",
+    "@vscode/test-cli": "^0.0.12",
+    "@vscode/test-electron": "^2.5.2",
+    "typescript": "^5.3.3"
+  },
+  "dependencies": {
+    "node-fetch": "^3.3.2"
+  }
+}
