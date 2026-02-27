@@ -414,29 +414,5 @@ Contributions are welcome! Please:
 4. Submit a pull request
 
 ---
-
-## 📄 License
-
-This project is provided as-is for use with Intel AI Super Builder.
-
----
-
-## 🙏 Acknowledgments
-
-- **Intel AI Super Builder** - Local AI inference platform
-- **FastAPI** - Modern Python web framework
-- **Streamlit** - Rapid UI development
-- **gRPC** - High-performance RPC framework
-
----
-
-## 📞 Support
-
-For issues with:
-- **This application**: Open an issue in this repository
-- **Intel Super Builder**: Visit [https://aibuilder.intel.com](https://aibuilder.intel.com)
-
----
-
 **Built with ❤️ for Intel AI PCs**
 
