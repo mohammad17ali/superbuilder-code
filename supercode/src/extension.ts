@@ -1,5 +1,6 @@
 import * as vscode from 'vscode';
 import { BackendClient } from './backendClient';
+import { ChatViewProvider } from './chatViewProvider';
 
 const CHAT_PARTICIPANT_ID = 'superbuilder-chat.assistant';
 const BACKEND_URL = 'http://localhost:8003';
@@ -50,7 +51,22 @@ export async function activate(context: vscode.ExtensionContext) {
         }
     );
 
-    context.subscriptions.push(participant, checkBackendCommand);
+    // Register the chat webview sidebar
+    const chatProvider = new ChatViewProvider(context.extensionUri);
+    const chatViewDisposable = vscode.window.registerWebviewViewProvider(
+        ChatViewProvider.viewType,
+        chatProvider
+    );
+
+    // Command to reveal the chat panel
+    const openChatCommand = vscode.commands.registerCommand(
+        'superbuilder.openChat',
+        () => {
+            vscode.commands.executeCommand('superbuilder.chatView.focus');
+        }
+    );
+
+    context.subscriptions.push(participant, checkBackendCommand, chatViewDisposable, openChatCommand);
 
     console.log('✅ SuperBuilder Chat extension activated!');
 }
