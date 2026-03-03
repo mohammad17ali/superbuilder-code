@@ -354,17 +354,6 @@ Full protocol definition: [backend/proto/superbuilder_service.proto](backend/pro
 2. Re-run: `./scripts/compile_proto.sh`
 3. Check that proto file exists in `backend/proto/`
 
-### Streamlit Connection Error
-
-**Error:** Cannot connect to FastAPI backend
-
-**Solutions:**
-1. Ensure backend is running on port 8000
-2. Check firewall settings
-3. Verify `API_URL` in `frontend/app.py`
-
----
-
 ## 🛠️ Development
 
 ### Adding New Features
