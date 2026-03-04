@@ -1,4 +1,4 @@
-# SuperBuilder Chat
+# Supercode - Local Coding Assistant
 
 AI-powered coding assistant for VS Code with Intel Super Builder integration.
 
