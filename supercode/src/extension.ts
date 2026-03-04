@@ -2,7 +2,6 @@ import * as vscode from 'vscode';
 import { BackendClient } from './backendClient';
 import { ChatViewProvider } from './chatViewProvider';
 
-const CHAT_PARTICIPANT_ID = 'superbuilder-chat.assistant';
 const BACKEND_URL = 'http://localhost:8003';
 
 let backendClient: BackendClient;
@@ -25,14 +24,6 @@ export async function activate(context: vscode.ExtensionContext) {
             '⚠️ SuperBuilder backend not available. Make sure it\'s running on port 8003.'
         );
     }
-
-    // Register chat participant
-    const participant = vscode.chat.createChatParticipant(
-        CHAT_PARTICIPANT_ID,
-        handleChatRequest
-    );
-
-    participant.iconPath = vscode.Uri.joinPath(context.extensionUri, 'media', 'icon.png');
 
     // Register command to check backend status
     const checkBackendCommand = vscode.commands.registerCommand(
@@ -66,96 +57,24 @@ export async function activate(context: vscode.ExtensionContext) {
         }
     );
 
-    context.subscriptions.push(participant, checkBackendCommand, chatViewDisposable, openChatCommand);
+    context.subscriptions.push(checkBackendCommand, chatViewDisposable, openChatCommand);
+
+    // Move the chat view to the secondary sidebar (right side) on first activation
+    const hasMovedKey = 'superbuilder.movedToSecondarySidebar';
+    if (!context.globalState.get(hasMovedKey)) {
+        // Small delay to ensure the view is registered before moving
+        setTimeout(async () => {
+            try {
+                await vscode.commands.executeCommand('superbuilder.chatView.focus');
+                await vscode.commands.executeCommand('workbench.action.moveViewToSecondarySidebar');
+                context.globalState.update(hasMovedKey, true);
+            } catch (e) {
+                console.log('Could not auto-move view to secondary sidebar:', e);
+            }
+        }, 1500);
+    }
 
     console.log('✅ SuperBuilder Chat extension activated!');
-}
-
-/**
- * Handle incoming chat requests
- */
-async function handleChatRequest(
-    request: vscode.ChatRequest,
-    context: vscode.ChatContext,
-    stream: vscode.ChatResponseStream,
-    token: vscode.CancellationToken
-): Promise<vscode.ChatResult> {
-    
-    // Handle special commands
-    if (request.command === 'help') {
-        stream.markdown('## SuperBuilder Commands\n\n');
-        stream.markdown('- `/help` - Show this help message\n');
-        stream.markdown('- `/status` - Check backend connection status\n');
-        stream.markdown('\nJust type your question or code request to chat with the AI!\n');
-        return { metadata: { command: 'help' } };
-    }
-
-    if (request.command === 'status') {
-        const health = await backendClient.getHealthStatus();
-        if (health) {
-            stream.markdown(`**Status:** ${health.status}\n\n`);
-            stream.markdown(`**Backend Connected:** ${health.superbuilder_connected ? '✅' : '❌'}\n\n`);
-            stream.markdown(`**LLM Ready:** ${health.llm_ready ? '✅' : '❌'}\n\n`);
-            if (health.message) {
-                stream.markdown(`**Message:** ${health.message}\n`);
-            }
-        } else {
-            stream.markdown('❌ **Cannot connect to backend**\n\n');
-            stream.markdown('Make sure the backend is running on http://localhost:8003\n');
-        }
-        return { metadata: { command: 'status' } };
-    }
-
-    // Handle regular chat
-    const prompt = request.prompt;
-    
-    if (!prompt || prompt.trim().length === 0) {
-        stream.markdown('Please provide a message or question.\n');
-        return { metadata: { command: 'empty' } };
-    }
-
-    try {
-        // Check if cancelled before starting
-        if (token.isCancellationRequested) {
-            return { metadata: { command: 'cancelled' } };
-        }
-
-        // Stream response from backend
-        let hasContent = false;
-        
-        for await (const chunk of backendClient.streamChat(prompt, token)) {
-            if (token.isCancellationRequested) {
-                stream.markdown('\n\n_[Response cancelled]_\n');
-                break;
-            }
-            
-            // Stream the text chunk
-            stream.markdown(chunk);
-            hasContent = true;
-        }
-
-        if (!hasContent && !token.isCancellationRequested) {
-            stream.markdown('_No response received from backend._\n');
-        }
-
-        return { 
-            metadata: { 
-                command: request.command || 'chat',
-                cancelled: token.isCancellationRequested
-            } 
-        };
-
-    } catch (error) {
-        const errorMessage = error instanceof Error ? error.message : String(error);
-        stream.markdown(`\n\n❌ **Error:** ${errorMessage}\n`);
-        
-        return { 
-            errorDetails: { 
-                message: errorMessage,
-                responseIsFiltered: false 
-            } 
-        };
-    }
 }
 
 /**

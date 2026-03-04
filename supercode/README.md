@@ -2,6 +2,8 @@
 
 AI-powered coding assistant for VS Code with Intel Super Builder integration.
 
+![Screenshot of the Extension being used in VS Code.](./media/image.png)
+
 ## Quick Start
 
 1. **Install dependencies:**
